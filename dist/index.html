@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CeylonVoyage | Professional Tourism Ecosystem</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script type="module" crossorigin src="/assets/index-qjxzU4eZ.js"></script>
+  <link rel="stylesheet" crossorigin href="/assets/index-BmpctwMA.css">
+</head>
+<body class="bg-slate-50 text-slate-900">
+
+    <!-- Config Error Overlay -->
+    <div id="configError" class="fixed inset-0 z-[20000] bg-slate-900/90 flex flex-col items-center justify-center p-6 text-center text-white">
+        <i class="fa-solid fa-triangle-exclamation text-6xl text-amber-500 mb-6"></i>
+        <h2 class="text-3xl font-bold mb-2">Configuration Required</h2>
+        <p class="max-w-md text-slate-300 mb-8">This website requires a valid Firebase configuration to function outside of the development environment.</p>
+        <button onclick="document.body.classList.remove('no-config')" class="px-8 py-3 bg-white text-slate-900 font-bold rounded-xl">Dismiss (Demo Mode)</button>
+    </div>
+
+    <!-- Auth Modal -->
+    <div id="authModal" class="fixed inset-0 z-[10000] flex items-center justify-center bg-slate-900/80 backdrop-blur-sm hidden p-4">
+        <div class="bg-white rounded-3xl max-w-md w-full p-8 shadow-2xl max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center mb-6">
+                <h3 id="authTitle" class="text-2xl font-bold">Explorer Access</h3>
+                <button onclick="toggleAuthModal()" class="text-slate-400"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            
+            <div id="verificationMsg" class="hidden mb-6 p-4 bg-emerald-50 border border-emerald-100 rounded-2xl text-emerald-800 text-sm">
+                <i class="fa-solid fa-envelope-circle-check mr-2"></i> Verification email sent.
+            </div>
+
+            <div id="authFields" class="space-y-4">
+                <div id="signupFields" class="space-y-4 hidden">
+                    <input type="text" id="regName" placeholder="What should we call you?" class="w-full p-3 border rounded-xl outline-none focus:border-emerald-500">
+                </div>
+                <input type="email" id="authEmail" placeholder="Email Address" class="w-full p-3 border rounded-xl outline-none focus:border-emerald-500">
+                <input type="password" id="authPass" placeholder="Password" class="w-full p-3 border rounded-xl outline-none focus:border-emerald-500">
+                <button onclick="handleAuthSubmit()" id="authSubmitBtn" class="w-full py-4 bg-emerald-600 text-white font-bold rounded-xl hover:bg-emerald-700 transition">
+                    <span id="btnText">Login</span>
+                </button>
+                <div class="relative flex items-center py-2">
+                    <div class="flex-grow border-t border-slate-200"></div>
+                    <span class="flex-shrink mx-4 text-slate-400 text-xs font-bold uppercase">Or</span>
+                    <div class="flex-grow border-t border-slate-200"></div>
+                </div>
+                <button onclick="handleGoogleAuth()" class="w-full py-4 bg-white border border-slate-200 text-slate-700 font-bold rounded-xl flex items-center justify-center gap-3 hover:bg-slate-50 transition">
+                    <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/action/google.svg" class="w-5">
+                    Continue with Google
+                </button>
+            </div>
+            <p class="text-center mt-6 text-sm text-slate-500">
+                <span id="authToggleText">Don't have an account?</span> 
+                <button onclick="toggleAuthMode()" id="authToggleBtn" class="text-emerald-600 font-bold ml-1">Sign Up</button>
+            </p>
+        </div>
+    </div>
+
+    <!-- TBK Admin Login Modal -->
+    <div id="staffModal" class="fixed inset-0 z-[11000] flex items-center justify-center bg-slate-900/90 backdrop-blur-md hidden p-4">
+        <div class="bg-white rounded-3xl max-w-sm w-full p-10 text-center shadow-2xl">
+            <div class="bg-slate-900 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-6 text-white text-2xl">
+                <i class="fa-solid fa-key"></i>
+            </div>
+            <h3 class="text-2xl font-bold mb-6">Staff Verification</h3>
+            <div class="space-y-4">
+                <input type="text" id="staffUser" placeholder="Admin ID (e.g. TBK)" class="w-full p-4 border rounded-2xl text-center font-bold">
+                <input type="password" id="staffPass" placeholder="Security Code" class="w-full p-4 border rounded-2xl text-center font-bold">
+                <button onclick="verifyStaff()" class="w-full py-4 bg-slate-900 text-white font-bold rounded-2xl">Unlock Dashboard</button>
+                <button onclick="toggleStaffModal()" class="w-full text-slate-400 font-bold text-sm">Return to Site</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <header class="sticky top-0 z-[1000] glass-nav h-20 flex items-center px-4 md:px-8">
+        <div class="max-w-7xl mx-auto w-full flex justify-between items-center">
+            <div class="flex items-center">
+                <button onclick="toggleMenu()" class="mr-6 p-2 text-slate-700 hover:text-emerald-600"><i class="fa-solid fa-bars-staggered text-2xl"></i></button>
+                <div class="flex items-center space-x-3 cursor-pointer" onclick="navTo('home')">
+                    <div class="bg-emerald-600 p-2 rounded-xl text-white shadow-lg"><i class="fa-solid fa-leaf"></i></div>
+                    <span class="text-2xl font-bold text-slate-800">CeylonVoyage</span>
+                </div>
+            </div>
+            <div class="flex items-center space-x-4">
+                <div id="roleBadge" class="hidden px-3 py-1 bg-emerald-100 text-emerald-700 text-[10px] font-bold rounded-full uppercase"></div>
+                <button id="authBtn" onclick="toggleAuthModal()" class="px-6 py-2.5 bg-emerald-600 text-white rounded-xl font-bold shadow-md hover:bg-emerald-700 transition">Login</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Side Menu -->
+    <div id="menuOverlay" onclick="toggleMenu()" class="fixed inset-0 bg-slate-900/40 z-[2000] opacity-0 pointer-events-none transition-opacity duration-300"></div>
+    <div id="sideMenu" class="fixed top-0 left-0 h-full w-80 bg-white z-[2001] -translate-x-full shadow-2xl flex flex-col">
+        <div class="p-8 border-b bg-emerald-600 text-white flex justify-between items-center">
+            <span class="font-bold text-2xl tracking-tight">Portal Menu</span>
+            <button onclick="toggleMenu()"><i class="fa-solid fa-xmark text-2xl"></i></button>
+        </div>
+        <nav class="flex-1 p-6 space-y-2 overflow-y-auto">
+            <a href="javascript:void(0)" onclick="navTo('home'); toggleMenu();" class="flex items-center space-x-4 p-4 rounded-xl hover:bg-emerald-50 font-semibold text-slate-700"><i class="fa-solid fa-house text-emerald-600 w-6"></i> <span>Home</span></a>
+            <a href="javascript:void(0)" onclick="navTo('explore'); toggleMenu();" class="flex items-center space-x-4 p-4 rounded-xl hover:bg-emerald-50 font-semibold text-slate-700"><i class="fa-solid fa-map-location-dot text-emerald-600 w-6"></i> <span>Explore Map</span></a>
+            <a href="javascript:void(0)" onclick="navTo('bookings'); toggleMenu();" class="flex items-center space-x-4 p-4 rounded-xl hover:bg-emerald-50 font-semibold text-slate-700"><i class="fa-solid fa-clock-rotate-left text-emerald-600 w-6"></i> <span>My Reservations</span></a>
+            
+            <div class="border-t my-4 pt-4">
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-4 mb-2">Business Gateway</p>
+                <a href="javascript:void(0)" onclick="navTo('apply'); toggleMenu();" class="flex items-center space-x-4 p-4 rounded-xl hover:bg-emerald-50 font-semibold text-slate-700"><i class="fa-solid fa-briefcase text-emerald-600 w-6"></i> <span>Partner Apply</span></a>
+                <div id="providerLink" class="hidden">
+                    <a href="javascript:void(0)" onclick="navTo('provider-dashboard'); toggleMenu();" class="flex items-center space-x-4 p-4 rounded-xl bg-emerald-50 text-emerald-700 font-bold border border-emerald-100"><i class="fa-solid fa-gauge-high w-6"></i> <span>Provider Hub</span></a>
+                </div>
+            </div>
+
+            <div id="adminLink" class="hidden border-t my-4 pt-4">
+                <a href="javascript:void(0)" onclick="navTo('admin-console'); toggleMenu();" class="flex items-center space-x-4 p-4 rounded-xl bg-slate-900 text-white font-bold"><i class="fa-solid fa-user-shield w-6"></i> <span>System Admin</span></a>
+            </div>
+        </nav>
+        <div class="p-6 border-t bg-slate-50">
+            <button onclick="toggleStaffModal()" class="w-full py-3 text-xs font-bold text-slate-400 uppercase tracking-widest hover:text-slate-900 transition">Staff Secure Entry</button>
+        </div>
+    </div>
+
+    <main id="view-container">
+        <!-- Home Section -->
+        <section id="home" class="hero-gradient min-h-[85vh] flex items-center px-4">
+            <div class="max-w-7xl mx-auto w-full text-white space-y-8 animate-fade-up">
+                <h1 class="text-5xl md:text-8xl font-black tracking-tight leading-none">Explore The <br><span class="text-emerald-400 underline decoration-white/20">Pearl</span> Of Asia.</h1>
+                <p class="text-lg md:text-xl text-slate-200 font-light max-w-2xl">Verified cabs, vehicle rentals, luxury stays, and adventure. Simple email registration for travelers and locals alike.</p>
+                <div class="flex flex-wrap gap-4 pt-4">
+                    <button onclick="navTo('explore')" class="px-10 py-5 bg-emerald-600 rounded-2xl font-bold text-lg hover:bg-emerald-700 transition flex items-center gap-2">Start Exploring <i class="fa-solid fa-arrow-right text-sm"></i></button>
+                    <button onclick="navTo('apply')" class="px-10 py-5 bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl font-bold text-lg hover:bg-white/20 transition">Business Portal</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Explore Section -->
+        <section id="explore" class="max-w-7xl mx-auto py-16 px-4 hidden">
+            <div id="sponsored-section" class="mb-12 hidden">
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mb-4">Promoted Destinations</p>
+                <div id="ad-banner-list" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>
+            </div>
+
+            <div class="flex flex-col md:flex-row justify-between items-end mb-10 gap-6">
+                <div>
+                    <h2 class="text-4xl font-bold text-slate-900">Discover Pins</h2>
+                    <div class="flex flex-wrap gap-2 mt-4">
+                        <button onclick="filterCategory('All')" class="category-chip active px-4 py-1.5 rounded-full text-xs font-bold">All</button>
+                        <button onclick="filterCategory('Cab')" class="category-chip px-4 py-1.5 rounded-full text-xs font-bold">Cabs</button>
+                        <button onclick="filterCategory('Rental')" class="category-chip px-4 py-1.5 rounded-full text-xs font-bold">Vehicle Rental</button>
+                        <button onclick="filterCategory('Restaurant')" class="category-chip px-4 py-1.5 rounded-full text-xs font-bold">Restaurants</button>
+                        <button onclick="filterCategory('Hotel')" class="category-chip px-4 py-1.5 rounded-full text-xs font-bold">Rooms/Hotels</button>
+                        <button onclick="filterCategory('Tourist')" class="category-chip px-4 py-1.5 rounded-full text-xs font-bold">Tourist Places</button>
+                    </div>
+                </div>
+                <div class="w-full md:w-80 relative">
+                    <i class="fa-solid fa-search absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                    <input type="text" id="mapSearch" placeholder="Search anything..." class="w-full pl-12 pr-4 py-3 bg-white border border-slate-200 rounded-2xl outline-none focus:border-emerald-500 transition">
+                </div>
+            </div>
+            <div id="map" class="mb-12"></div>
+            <div id="service-list" class="grid grid-cols-1 md:grid-cols-3 gap-8"></div>
+        </section>
+
+        <!-- Admin Console -->
+        <section id="admin-console" class="max-w-7xl mx-auto py-20 px-4 hidden">
+            <div class="flex flex-col md:flex-row justify-between items-center mb-10 gap-4">
+                <h2 class="text-4xl font-extrabold text-slate-900">Admin Dashboard (TBK)</h2>
+                <button onclick="exportAllData()" class="px-6 py-3 bg-slate-900 text-white font-bold rounded-xl flex items-center gap-2 hover:bg-black transition"><i class="fa-solid fa-file-excel"></i> Export All to Excel</button>
+            </div>
+
+            <div class="bg-slate-200/50 p-1.5 rounded-2xl flex flex-wrap mb-10 gap-1">
+                <button onclick="setAdminTab('apps')" id="adm-tab-apps" class="admin-tab active flex-1 py-3 font-bold rounded-xl transition">Pending Biz</button>
+                <button onclick="setAdminTab('users')" id="adm-tab-users" class="admin-tab flex-1 py-3 font-bold rounded-xl transition">User Manager</button>
+                <button onclick="setAdminTab('services')" id="adm-tab-services" class="admin-tab flex-1 py-3 font-bold rounded-xl transition">Moderation</button>
+                <button onclick="setAdminTab('ads')" id="adm-tab-ads" class="admin-tab flex-1 py-3 font-bold rounded-xl transition">Ad Campaigns</button>
+            </div>
+
+            <div id="admin-view-apps" class="admin-content animate-fade-up">
+                <div id="admin-applications" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>
+                <div class="mt-8 bg-white p-6 rounded-2xl border flex items-center justify-between">
+                    <div>
+                        <h4 class="font-bold">Code Generator</h4>
+                        <div id="active-codes" class="flex flex-wrap gap-1 mt-2"></div>
+                    </div>
+                    <button onclick="generateApprovalCode()" class="px-6 py-3 bg-emerald-600 text-white font-bold rounded-xl">Generate Code</button>
+                </div>
+            </div>
+
+            <div id="admin-view-users" class="admin-content hidden">
+                <div class="bg-white rounded-2xl border overflow-x-auto">
+                    <table class="w-full text-left">
+                        <thead class="bg-slate-50 text-[10px] font-bold text-slate-400 uppercase">
+                            <tr>
+                                <th class="px-6 py-4">Explorer</th>
+                                <th class="px-6 py-4">Email</th>
+                                <th class="px-6 py-4">Status</th>
+                                <th class="px-6 py-4">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="admin-users-list" class="divide-y text-sm"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div id="admin-view-services" class="admin-content hidden">
+                <div id="admin-service-moderation" class="grid grid-cols-1 md:grid-cols-3 gap-6"></div>
+            </div>
+
+            <div id="admin-view-ads" class="admin-content hidden">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-10">
+                    <div class="bg-white p-8 rounded-3xl border">
+                        <h4 class="font-bold text-xl mb-6">Visual Ad Creator</h4>
+                        <div class="space-y-4">
+                            <input type="text" id="adTitle" placeholder="Campaign Title" class="w-full p-4 border rounded-2xl">
+                            <select id="adType" class="w-full p-4 border rounded-2xl">
+                                <option value="image">Image Banner</option>
+                                <option value="video">Video Ad (YouTube ID)</option>
+                            </select>
+                            <input type="text" id="adMedia" placeholder="Media URL / ID" class="w-full p-4 border rounded-2xl">
+                            <textarea id="adText" placeholder="Ad Description" class="w-full p-4 border rounded-2xl h-24"></textarea>
+                            <button onclick="publishAd()" class="w-full py-4 bg-emerald-600 text-white font-bold rounded-2xl">Push Ad Live</button>
+                        </div>
+                    </div>
+                    <div id="admin-ads-list" class="space-y-4 max-h-[500px] overflow-y-auto"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Application View -->
+        <section id="apply" class="max-w-7xl mx-auto py-20 px-4 hidden">
+            <div class="max-w-2xl mx-auto bg-white p-10 rounded-[2.5rem] shadow-xl border">
+                <h2 class="text-3xl font-bold mb-4">Partner With Us</h2>
+                <div id="applicationForm" class="space-y-4">
+                    <input type="text" id="appBizName" placeholder="Business Name" class="w-full p-4 border rounded-2xl">
+                    <select id="appBizType" class="w-full p-4 border rounded-2xl">
+                        <option value="Cab">Cab Service</option>
+                        <option value="Rental">Vehicle Rental</option>
+                        <option value="Restaurant">Restaurant</option>
+                        <option value="Hotel">Hotel/Room</option>
+                        <option value="Tourist">Tourist Place</option>
+                    </select>
+                    <textarea id="appBizDesc" placeholder="Describe your services..." class="w-full p-4 border rounded-2xl h-32"></textarea>
+                    <button onclick="submitApplication()" class="w-full py-5 bg-emerald-600 text-white font-bold rounded-2xl">Submit Application</button>
+                </div>
+                <div class="mt-12 pt-8 border-t bg-slate-50 -mx-10 px-10 rounded-b-[2.5rem]">
+                    <h4 class="font-bold mb-2">Activation Center</h4>
+                    <div class="flex gap-2 pb-8">
+                        <input type="text" id="upgradeCode" placeholder="VERIFY-CODE" class="flex-1 p-4 border rounded-2xl uppercase text-center font-bold">
+                        <button onclick="upgradeAccount()" class="px-8 bg-slate-900 text-white font-bold rounded-2xl">Activate</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="provider-dashboard" class="max-w-7xl mx-auto py-20 px-4 hidden">
+            <div class="flex justify-between items-center mb-10">
+                <h2 class="text-3xl font-bold text-slate-800">Your Services</h2>
+                <button onclick="openProviderModal()" class="px-6 py-3 bg-emerald-600 text-white font-bold rounded-xl shadow-lg">+ Add Listing</button>
+            </div>
+            <div id="provider-services" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"></div>
+        </section>
+
+        <section id="bookings" class="max-w-7xl mx-auto py-20 px-4 hidden">
+            <h2 class="text-3xl font-bold mb-10">Your Reservations</h2>
+            <div id="my-bookings-list" class="space-y-4"></div>
+        </section>
+    </main>
+
+    <!-- Listing Creation Modal -->
+    <div id="listingModal" class="fixed inset-0 z-[10000] flex items-center justify-center bg-slate-900/80 backdrop-blur-sm hidden p-4">
+        <div class="bg-white rounded-3xl max-w-lg w-full p-8 max-h-[90vh] overflow-y-auto">
+            <h3 class="text-2xl font-bold mb-6">Create Pin on Map</h3>
+            <div class="space-y-4">
+                <input type="text" id="listName" placeholder="Name (e.g. Ella Cabs)" class="w-full p-3 border rounded-xl">
+                <select id="listCategory" class="w-full p-3 border rounded-xl">
+                    <option value="Cab">Cab</option>
+                    <option value="Rental">Rental</option>
+                    <option value="Restaurant">Restaurant</option>
+                    <option value="Hotel">Hotel</option>
+                    <option value="Tourist">Tourist Place</option>
+                </select>
+                <input type="number" id="listPrice" placeholder="Starting Price / Ticket Fee ($)" class="w-full p-3 border rounded-xl">
+                <input type="text" id="listImg" placeholder="Image URL (Unsplash)" class="w-full p-3 border rounded-xl">
+                <div class="grid grid-cols-2 gap-2">
+                    <input type="text" id="listLat" placeholder="Lat (e.g. 7.2)" class="w-full p-3 border rounded-xl">
+                    <input type="text" id="listLng" placeholder="Lng (e.g. 80.6)" class="w-full p-3 border rounded-xl">
+                </div>
+                <button onclick="saveListing()" class="w-full py-4 bg-emerald-600 text-white font-bold rounded-2xl shadow-xl">Publish Globally</button>
+                <button onclick="closeListingModal()" class="w-full text-slate-400 text-sm font-bold mt-2">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Floating Chatbot -->
+    <div id="chatbot">
+        <button onclick="toggleChat()" class="w-14 h-14 bg-slate-900 text-white rounded-2xl shadow-2xl flex items-center justify-center text-xl hover:scale-110 transition active:scale-95">
+            <i class="fa-solid fa-comment-dots"></i>
+        </button>
+        <div id="chatWindow" class="chat-window bg-white absolute bottom-16 right-0 rounded-3xl shadow-2xl overflow-hidden border">
+            <div class="p-4 bg-emerald-600 text-white font-bold flex justify-between">
+                <span>Ceylon Assistant</span>
+                <button onclick="toggleChat()"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div id="chatMessages" class="flex-1 p-4 space-y-2 overflow-y-auto text-sm">
+                <div class="bg-slate-100 p-3 rounded-2xl rounded-tl-none mr-8">Hello! How can I help you explore Sri Lanka today?</div>
+            </div>
+            <div class="p-3 border-t flex gap-2">
+                <input type="text" id="chatInput" placeholder="Ask about places..." class="flex-1 p-2 bg-slate-50 border-none outline-none text-sm">
+                <button onclick="sendChatMessage()" class="text-emerald-600 p-2"><i class="fa-solid fa-paper-plane"></i></button>
+            </div>
+        </div>
+    </div>
+
+    <footer class="bg-slate-900 text-white py-16 px-4 mt-20">
+        <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-10 border-b border-slate-800 pb-10">
+            <div>
+                <h4 class="text-2xl font-bold mb-4">CeylonVoyage</h4>
+                <p class="text-slate-500 text-sm">Professional tourism gateway. Exploring the beauty of Sri Lanka with global standards.</p>
+            </div>
+            <div>
+                <h4 class="font-bold mb-4 uppercase text-xs tracking-widest text-emerald-400">Contact Us</h4>
+                <p class="text-slate-400 text-sm mb-2"><i class="fa-solid fa-envelope mr-2"></i> info@ceylonvoyage.com</p>
+                <p class="text-slate-400 text-sm"><i class="fa-solid fa-phone mr-2"></i> +94 11 234 5678</p>
+            </div>
+            <div>
+                <h4 class="font-bold mb-4 uppercase text-xs tracking-widest text-emerald-400">Emergency</h4>
+                <p class="text-slate-400 text-sm">Tourist Police: 1912</p>
+                <p class="text-slate-400 text-sm">Ambulance: 1990</p>
+            </div>
+        </div>
+        <p class="text-center text-slate-600 text-[10px] mt-10 uppercase font-bold tracking-widest">&copy; 2025 CeylonVoyage. All Rights Reserved.</p>
+    </footer>
+
+</body>
+</html>
